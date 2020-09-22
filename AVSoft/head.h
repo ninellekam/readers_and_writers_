@@ -10,13 +10,12 @@
 #include <cstdio>
 #include <ctime>
 #include <csignal>
-#include <sys/mman.h>
 #include <fcntl.h>
 #include <unistd.h>
 
-#define R_COUNT 3
-#define W_COUNT 3
-#define ITER_COUNT 5
+#define R_COUNT 2
+#define W_COUNT 2
+#define ITER_COUNT 2
 #define WRITERS_SLEEP 3000U
 #define READERS_SLEEP 3000U
 

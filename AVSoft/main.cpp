@@ -28,14 +28,14 @@ std::string datecreate() {
     return dt;
 }
 
-void    writer(void *addr) {
+void    writer(std::string *buf) {
     for (unsigned int j = 0 ; j < ITER_COUNT ; j++) {
         wr.lock();
         rd.lock();
         
         // writing start
         std::string s = datecreate();
-        memcpy(addr, s.c_str(), s.length());
+        *buf = s;
         if ( s.empty() )
             sys_err("Can't use shared memory\n");
         std::cout << "Writer "  << " iter №:" << j << " \n" ;
@@ -47,7 +47,7 @@ void    writer(void *addr) {
     }
 }
 
-void    reader(void *addr){
+void    reader(std::string *buf){
     for (unsigned int j = 0; j < ITER_COUNT ; j++) {
         wr.lock();
         cmutex.lock();
@@ -57,11 +57,9 @@ void    reader(void *addr){
         cmutex.unlock();
         
          //reading start
-        char  buf[32];
-        memcpy(buf, addr, 32);
         std::cout <<"Readers: " << " iter  №: " << j << "\n";
-        if ( buf[0] != '\0' )
-            std::cout <<"Now readers reading: " << buf << "\n";
+        if ( !(*buf).empty() )
+            std::cout <<"Now readers reading: " << *buf << "\n";
         else
             std::cout <<"Untill File empty \n";
         std::this_thread::sleep_for(std::chrono::milliseconds(3000U));
@@ -85,31 +83,24 @@ int main()
     unsigned int r = R_COUNT ;
     unsigned int w = W_COUNT ;
     unsigned int rw = R_COUNT + W_COUNT ;
-    pid_t pid;
-    off_t offset  = sysconf(_SC_PAGE_SIZE);
-	pid = getpid();
 
-    int fd = open("text.txt", O_RDWR , 0666);
-    void *addr = mmap(NULL, 4096, PROT_READ | PROT_WRITE,
-                     MAP_SHARED, fd, 0);
-
-   
+    std::string *buf = new std::string;
     for (unsigned int i = 0; i < rw ; i++) {
         if (r == 0) {
             --w;
-            threads.push_back(std::thread(writer, addr));
+            threads.push_back(std::thread(writer, buf));
         }
         else if (w == 0) {
             --r;
-            threads.push_back(std::thread(reader, addr));
+            threads.push_back(std::thread(reader, buf));
         }
         else if (&randomizer == (0)){
             --w;
-          threads.push_back(std::thread(writer, addr));
+          threads.push_back(std::thread(writer, buf));
         }
         else {
             --r;
-         threads.push_back(std::thread(reader, addr));
+         threads.push_back(std::thread(reader, buf));
         }
     }
     
