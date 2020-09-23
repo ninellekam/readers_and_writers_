@@ -13,9 +13,9 @@
 #include <fcntl.h>
 #include <unistd.h>
 
-#define R_COUNT 2
-#define W_COUNT 2
-#define ITER_COUNT 2
+#define R_COUNT 10
+#define W_COUNT 10
+#define ITER_COUNT 10
 #define WRITERS_SLEEP 3000U
 #define READERS_SLEEP 3000U
 

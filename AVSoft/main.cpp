@@ -4,11 +4,11 @@ std::mutex rd , wr, cmutex;
 unsigned int readers = 0;
 
 void    sigHandler( int sig) {
-    std::cout << "SIGNAL SIGINT  with number " << sig << std::endl;
+    std::cout << "Interrupt signal (" + std::to_string(sig) + ") received.\n";
     exit(sig);
 }
 void sys_err (std::string msg){
-  std::cout << msg << std::endl;
+  throw std::logic_error (msg) ;
   exit (1);
 }
 
@@ -32,14 +32,13 @@ void    writer(std::string *buf) {
     for (unsigned int j = 0 ; j < ITER_COUNT ; j++) {
         wr.lock();
         rd.lock();
-        
         // writing start
         std::string s = datecreate();
         *buf = s;
         if ( s.empty() )
             sys_err("Can't use shared memory\n");
-        std::cout << "Writer "  << " iter №:" << j << " \n" ;
-        std::this_thread::sleep_for(std::chrono::milliseconds(3000U));
+        std::cout << "Writer:     "  << "Iter №:    " << j << "   is writing\n" ;
+        std::this_thread::sleep_for(std::chrono::milliseconds(200U));
         // writing end
         
         rd.unlock();
@@ -51,26 +50,25 @@ void    reader(std::string *buf){
     for (unsigned int j = 0; j < ITER_COUNT ; j++) {
         wr.lock();
         cmutex.lock();
-        readers++;
+        ++readers;
         if (readers == 1)
             rd.lock();
         cmutex.unlock();
-        
          //reading start
-        std::cout <<"Readers: " << " iter  №: " << j << "\n";
+        std::cout <<"\t\tReaders:    " << "Iter №:     " << j << "\n";
         if ( !(*buf).empty() )
-            std::cout <<"Now readers reading: " << *buf << "\n";
+            std::cout <<"\t\tNow readers reading:    " << *buf << "\n";
         else
-            std::cout <<"Untill File empty \n";
-        std::this_thread::sleep_for(std::chrono::milliseconds(3000U));
+            std::cout <<"Buffer is  empty\n";
+        std::this_thread::sleep_for(std::chrono::milliseconds(200U));
         
         // reading end
         cmutex.lock();
-        readers--;
+        --readers;
            if (readers == 0)
                rd.unlock();
-        wr.unlock();
         cmutex.unlock();
+        wr.unlock();
     }
 }
 
@@ -107,7 +105,7 @@ int main()
    for (auto &iterator : threads)
    if (iterator.joinable())
        iterator.join();
-       
+
     delete(buf);
     exit(0);
 }
