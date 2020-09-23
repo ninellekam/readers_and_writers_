@@ -27,7 +27,7 @@ std::string datecreate() {
     return dt;
 }
 
-void    writer(std::string &buf) {
+void writer(std::string &buf) {
     for (unsigned int j = 0 ; j < ITER_COUNT ; j++) {
         wr.lock();
         rd.lock();
@@ -45,7 +45,7 @@ void    writer(std::string &buf) {
     }
 }
 
-void    reader(std::string &buf){
+void reader(std::string &buf){
     for (unsigned int j = 0; j < ITER_COUNT ; j++) {
         wr.lock();
         cmutex.lock();
@@ -55,7 +55,7 @@ void    reader(std::string &buf){
         cmutex.unlock();
          //reading start
         std::cout <<"\t\tReaders:    " << "Iter №:     " << j << "\n";
-        if ( !(buf).empty() )
+        if (!buf.empty())
             std::cout <<"\t\tNow readers reading:    " << buf << "\n";
         else
             std::cout <<"Buffer is  empty\n";
@@ -81,30 +81,29 @@ int main()
     unsigned int w = W_COUNT ;
     unsigned int rw = R_COUNT + W_COUNT ;
     
-    std::string *buf  = new std::string;
+    std::string buf;
     for (unsigned int i = 0; i < rw ; i++) {
         if (r == 0) {
             --w;
-            threads.push_back(std::thread(writer, std::ref(*buf)));
+            threads.push_back(std::thread(writer, std::ref(buf)));
         }
         else if (w == 0) {
             --r;
-            threads.push_back(std::thread(reader, std::ref(*buf)));
+            threads.push_back(std::thread(reader, std::ref(buf)));
         }
-        else if (&randomizer == (0)){
+        else if (&randomizer == 0){
             --w;
-          threads.push_back(std::thread(writer, std::ref(*buf)));
+            threads.push_back(std::thread(writer, std::ref(buf)));
         }
         else {
             --r;
-         threads.push_back(std::thread(reader, std::ref(*buf)));
+            threads.push_back(std::thread(reader, std::ref(buf)));
         }
     }
     
-   for (auto &iterator : threads)
-   if (iterator.joinable())
-       iterator.join();
+    for (auto &iterator : threads)
+        if (iterator.joinable())
+            iterator.join();
 
-    delete(buf);
-   exit(0);
+    exit(0);
 }
