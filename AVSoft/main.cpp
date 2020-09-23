@@ -80,7 +80,7 @@ int main()
     unsigned int r = R_COUNT ;
     unsigned int w = W_COUNT ;
     unsigned int rw = R_COUNT + W_COUNT ;
-
+    
     std::string *buf  = new std::string;
     for (unsigned int i = 0; i < rw ; i++) {
         if (r == 0) {
