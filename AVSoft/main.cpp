@@ -107,6 +107,7 @@ int main()
    for (auto &iterator : threads)
    if (iterator.joinable())
        iterator.join();
-    
+       
+    delete(buf);
     exit(0);
 }
