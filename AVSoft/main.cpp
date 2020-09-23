@@ -1,5 +1,4 @@
 #include "head.h"
-
 std::mutex rd , wr, cmutex;
 unsigned int readers = 0;
 
@@ -82,7 +81,7 @@ int main()
     unsigned int w = W_COUNT ;
     unsigned int rw = R_COUNT + W_COUNT ;
 
-    std::string *buf = new std::string;
+    std::string *buf  = new std::string;
     for (unsigned int i = 0; i < rw ; i++) {
         if (r == 0) {
             --w;
@@ -107,5 +106,5 @@ int main()
        iterator.join();
 
     delete(buf);
-    exit(0);
+   exit(0);
 }
