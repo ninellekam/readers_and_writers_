@@ -27,13 +27,13 @@ std::string datecreate() {
     return dt;
 }
 
-void    writer(std::string *buf) {
+void    writer(std::string &buf) {
     for (unsigned int j = 0 ; j < ITER_COUNT ; j++) {
         wr.lock();
         rd.lock();
         // writing start
         std::string s = datecreate();
-        *buf = s;
+        buf = s;
         if ( s.empty() )
             sys_err("Can't use shared memory\n");
         std::cout << "Writer:     "  << "Iter №:    " << j << "   is writing\n" ;
@@ -45,7 +45,7 @@ void    writer(std::string *buf) {
     }
 }
 
-void    reader(std::string *buf){
+void    reader(std::string &buf){
     for (unsigned int j = 0; j < ITER_COUNT ; j++) {
         wr.lock();
         cmutex.lock();
@@ -55,8 +55,8 @@ void    reader(std::string *buf){
         cmutex.unlock();
          //reading start
         std::cout <<"\t\tReaders:    " << "Iter №:     " << j << "\n";
-        if ( !(*buf).empty() )
-            std::cout <<"\t\tNow readers reading:    " << *buf << "\n";
+        if ( !(buf).empty() )
+            std::cout <<"\t\tNow readers reading:    " << buf << "\n";
         else
             std::cout <<"Buffer is  empty\n";
         std::this_thread::sleep_for(std::chrono::milliseconds(200U));
@@ -85,19 +85,19 @@ int main()
     for (unsigned int i = 0; i < rw ; i++) {
         if (r == 0) {
             --w;
-            threads.push_back(std::thread(writer, buf));
+            threads.push_back(std::thread(writer, std::ref(*buf)));
         }
         else if (w == 0) {
             --r;
-            threads.push_back(std::thread(reader, buf));
+            threads.push_back(std::thread(reader, std::ref(*buf)));
         }
         else if (&randomizer == (0)){
             --w;
-          threads.push_back(std::thread(writer, buf));
+          threads.push_back(std::thread(writer, std::ref(*buf)));
         }
         else {
             --r;
-         threads.push_back(std::thread(reader, buf));
+         threads.push_back(std::thread(reader, std::ref(*buf)));
         }
     }
     
